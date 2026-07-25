@@ -6,6 +6,10 @@
 ![Audio Engine](https://img.shields.io/badge/Audio-Oboe%20%2F%20AAudio-00FF41?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-00FF41?style=for-the-badge)
 
+[![DSP4Guitar Android CI](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android/actions/workflows/android-ci.yml/badge.svg)](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android/actions/workflows/android-ci.yml)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/GizzZmo/DSP4Guitar-USB-Studio-Android?style=for-the-badge&color=00FF41&label=LATEST%20BUILD)](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android/releases)
+[![GitHub issues](https://img.shields.io/github/issues/GizzZmo/DSP4Guitar-USB-Studio-Android?style=for-the-badge&color=00FF41)](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android/issues)
+
 **DSP4Guitar USB Studio** transforms your Android device into a portable, professional-grade guitar rig and multi-effect processing studio. Built on top of the high-performance C++ **DSP4Guitar** engine and engineered for mobile workflows, it bridges real-time studio audio processing with plug-and-play USB hardware integration.
 
 Designed for guitarists, sound designers, and audio engineers who demand studio-quality tone on the go, the app delivers low-latency processing over **USB Audio Class (UAC)** interfaces via **Google Oboe and AAudio**. Whether practicing with an OTG guitar interface, tracking mobile demos, or performing live, DSP4Guitar delivers a zero-latency feel without sacrificing signal fidelity.
