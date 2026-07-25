@@ -29,7 +29,6 @@ jobs:
       - name: Setup Android SDK & NDK Environment
         uses: android-actions/setup-android@v3
 
-      # Finn prosjektet, generer ny wrapper på serveren, og gi kjørerettigheter
       - name: Locate Project & Regenerate Corrupt Gradle Wrapper
         run: |
           # Finn mappen der gradlew ligger (eller bruk rotmappen hvis ikke funnet)
@@ -50,6 +49,27 @@ jobs:
           chmod +x gradlew
           
           # Lagre mappen som en miljøvariabel for neste steg
+          echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
+
+          # Finn prosjektet, generer ny wrapper, og opprett manglende .env-filer
+     
+      - name: Locate Project & Prepare Build Environment
+        run: |
+          GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
+          if [ -n "$GRADLEW_PATH" ]; then
+            GRADLEW_DIR=$(dirname "$GRADLEW_PATH")
+            cd "$GRADLEW_DIR"
+          fi
+          
+          # 1. Opprett manglende miljøfiler som byggeprogrammet krever
+          echo "📝 Oppretter .env.example og .env for CI-serveren..."
+          touch .env.example .env
+          
+          # 2. Generer frisk Gradle-wrapper på serveren
+          echo "🔧 Genererer ny og urørt gradle-wrapper.jar..."
+          gradle wrapper --distribution-type all
+          chmod +x gradlew
+          
           echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
 
       # Bygg C++ DSP motor og Android APK fra riktig mappe
