@@ -44,8 +44,10 @@ class MainActivity : ComponentActivity() {
 
         // Check Audio Record Permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED
+            == PackageManager.PERMISSION_GRANTED
         ) {
+            viewModel.toggleAudioEngine(true)
+        } else {
             requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
 
