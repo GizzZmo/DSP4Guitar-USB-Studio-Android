@@ -40,22 +40,25 @@ jobs:
             echo "⚠️ Fant ikke gradlew, antar at prosjektet ligger i rotmappen."
           fi
           
-          # 1. Opprett miljøfiler og gyldig stub for Google Services
-          echo "📝 Oppretter .env og dummy google-services.json for CI..."
+          # 1. Opprett .env-filer
+          echo "📝 Oppretter .env og .env.example..."
           touch .env.example .env
-          mkdir -p app/src/debug app
+          
+          # 2. Lag en fullstendig dummy google-services.json som tilfredsstiller Google Services-pluginen
+          echo "📝 Genererer gyldig dummy google-services.json for CI..."
+          mkdir -p app/src/debug app/src/main app
           
           cat << 'EOF' > app/src/debug/google-services.json
           {
             "project_info": {
-              "project_number": "1234567890",
+              "project_number": "123456789012",
               "project_id": "dsp4guitar-dummy",
               "storage_bucket": "dsp4guitar-dummy.appspot.com"
             },
             "client": [
               {
                 "client_info": {
-                  "mobilesdk_app_id": "1:1234567890:android:1234567890abcdef",
+                  "mobilesdk_app_id": "1:123456789012:android:1234567890abcdef123456",
                   "android_client_info": {
                     "package_name": "com.cybergroup.dsp4guitar"
                   }
@@ -63,7 +66,7 @@ jobs:
                 "oauth_client": [],
                 "api_key": [
                   {
-                    "current_key": "AIzaSyDummyKeyForCIEnvironmentOnly00"
+                    "current_key": "AIzaSyDummyKeyForCIEnvironmentOnly000"
                   }
                 ],
                 "services": {
@@ -77,15 +80,16 @@ jobs:
           }
           EOF
           
-          # Kopier også til app/ for å dekke alle oppslagsbaner
+          # Kopier filen til de andre søkeveiene for sikkerhets skyld
           cp app/src/debug/google-services.json app/google-services.json
+          cp app/src/debug/google-services.json app/src/main/google-services.json
           
-          # 2. Generer debug.keystore
+          # 3. Generer midlertidig debug.keystore
           echo "🔑 Genererer midlertidig debug.keystore..."
           keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 1000 -dname "CN=Android Debug,O=Android,C=US"
           
-          # 3. Generer frisk Gradle-wrapper
-          echo "🔧 Genererer ny og urørt gradle-wrapper.jar..."
+          # 4. Generer frisk Gradle-wrapper
+          echo "🔧 Genererer ny og urørt gradle-wrapper.jar på serveren..."
           gradle wrapper --distribution-type all
           chmod +x gradlew
           
