@@ -28,15 +28,27 @@ jobs:
       - name: Setup Android SDK & NDK Environment
         uses: android-actions/setup-android@v3
 
-      - name: Grant Execute Permission for Gradlew
-        run: chmod +x gradlew
+      # Automatisk finn gradlew og gjør den eksekverbar
+      - name: Locate and Grant Execute Permission for Gradlew
+        run: |
+          GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
+          if [ -z "$GRADLEW_PATH" ]; then
+            echo "❌ Feil: Fant ikke gradlew i repoet! Sjekk at du har committet gradlew og gradle/wrapper/-mappen."
+            exit 1
+          fi
+          echo "✅ Fant gradlew i: $GRADLEW_PATH"
+          chmod +x "$GRADLEW_PATH"
+          echo "GRADLEW_DIR=$(dirname "$GRADLEW_PATH")" >> $GITHUB_ENV
 
+      # Bygg APK fra mappen der gradlew ble funnet
       - name: Build Debug APK (with C++ CMake/NDK compilation)
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          cd ${{ env.GRADLEW_DIR }}
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: dsp4guitar-usb-studio-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: '**/build/outputs/apk/debug/*.apk'
           retention-days: 30
