@@ -1,22 +1,55 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# DSP4Guitar USB Studio (Android) 🎸⚡
 
-# Run and deploy your AI Studio app
+![Android CI](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android/actions/workflows/android-ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Android%20NDK%20%7C%20API%2026%2B-brightgreen)
+![C++ Standard](https://img.shields.io/badge/c%2B%2B-17-orange)
 
-This contains everything you need to run your app locally.
+A high-performance, ultra-low-latency real-time guitar multi-effects processor engineered for Android devices. Designed to interface directly with class-compliant **USB Audio Class 2.0 (UAC 2.0)** interfaces over **USB-OTG**, bypassing the high-latency Android OS audio mixer via **Oboe / AAudio** in exclusive mode.
 
-View your app in AI Studio: https://ai.studio/apps/2ccf28ad-8a78-4b31-8032-5f1df3922082
+---
 
-## Run Locally
+## ⚡ Features
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+- **Ultra-Low Latency Engine:** C++ Native Audio Engine built on **Oboe (AAudio/OpenSL ES)** using `SharingMode::Exclusive` and `PerformanceMode::LowLatency`.
+- **Zero-Allocation Audio Thread:** Fully lock-free signal path adhering strictly to real-time C++ audio programming standards (no `malloc`, no `mutex`, no system calls in `processBlock`).
+- **USB OTG Integration:** Direct USB Host connection with hardware audio interfaces supporting up to 24-bit / 96kHz.
+- **DSP Effect Chain:**
+  - Tube-modeled Amp Simulator & Cabinet IR Loader
+  - Overdrive / Distortion with anti-aliasing oversampling
+  - Parametric EQ, Chorus, Delay, and Reverb
+  - Noise Gate & Chromatic Tuner
+- **Hardware-Aware UI:** Cyberpunk / Terminal dark aesthetic optimized for high-contrast live performance visibility.
 
+---
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
-7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.
+## 🛠️ Tech Stack
+
+- **Core Audio Engine:** C++17, Google Oboe / JUCE DSP Framework
+- **Build System:** CMake 3.22+, Gradle 8.x
+- **Target Platform:** Android 8.0 (API Level 26) and higher
+- **Architectures:** `arm64-v8a`, `armeabi-v7a`, `x86_64`
+
+---
+
+## 🚀 Quick Start & Building
+
+### Prerequisites
+
+1. **Android Studio** (Ladybug or newer)
+2. **Android NDK** (r25c or newer)
+3. **CMake** (3.22.1+)
+4. A USB OTG cable and a Class-Compliant USB Audio Interface (e.g., Focusrite Scarlett, Behringer U-Phoria, IK Multimedia iRig HD).
+
+### Build Instructions
+
+```bash
+# 1. Clone the repository with submodules
+git clone --recursive [https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android.git](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android.git)
+cd DSP4Guitar-USB-Studio-Android
+
+# 2. Copy environment template
+cp .env.example .env
+
+# 3. Build the Debug APK using Gradle Wrapper
+./gradlew assembleDebug
