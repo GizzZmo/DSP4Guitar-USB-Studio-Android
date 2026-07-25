@@ -1,0 +1,82 @@
+name: DSP4Guitar Release Build & Sign 🎸⚡
+
+on:
+  push:
+    tags:
+      - 'v*' # Utløses automatisk når du pusher en ny tag, f.eks: git push origin v1.0.0
+
+jobs:
+  build-and-sign:
+    name: Build, Sign & Publish Release APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Nødvendig for å kunne laste opp til GitHub Releases
+
+    steps:
+      - name: Checkout Repository & Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Android SDK & NDK Environment
+        uses: android-actions/setup-android@v3
+
+      # Automatisk finn gradlew i mappestrukturen
+      - name: Locate and Grant Execute Permission for Gradlew
+        run: |
+          GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
+          if [ -z "$GRADLEW_PATH" ]; then
+            echo "❌ Feil: Fant ikke gradlew!"
+            exit 1
+          fi
+          chmod +x "$GRADLEW_PATH"
+          echo "GRADLEW_DIR=$(dirname "$GRADLEW_PATH")" >> $GITHUB_ENV
+
+      # Bygg optimalisert Release-APK (usignert fra Gradle sin side)
+      - name: Build Unsigned Release APK
+        run: |
+          cd ${{ env.GRADLEW_DIR }}
+          ./gradlew assembleRelease --stacktrace
+
+      # Signer APK-en ved hjelp av GitHub Secrets og offisiell apksigner
+      - name: Sign Android Release APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      # Last opp som en vanlig underlagringsfil (Artifact) i Actions-fanen
+      - name: Upload Signed APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DSP4Guitar-USB-Studio-${{ github.ref_name }}-signed
+          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          retention-days: 90
+
+      # Opprett en offisiell GitHub Release og legg ved den signerte APK-en
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: DSP4Guitar USB Studio ${{ github.ref_name }}
+          body: |
+            🎸 **Ny offisiell release av DSP4Guitar USB Studio (Android)!**
+            
+            Last ned den ferdig signerte APK-filen under for å installere direkte på din Android-enhet.
+            
+            ### Hva er nytt?
+            - Full C++ DSP4Guitar 10-stegs effektmotor kompilert med Oboe/AAudio
+            - Lav-latens USB Audio Class (OTG) støtte
+            - Matrix-terminal & Cyberpunk UI-oppgraderinger
+          files: ${{ steps.sign_app.outputs.signedReleaseFile }}
