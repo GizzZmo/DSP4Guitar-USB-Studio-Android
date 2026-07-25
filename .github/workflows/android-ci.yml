@@ -29,7 +29,8 @@ jobs:
       - name: Setup Android SDK & NDK Environment
         uses: android-actions/setup-android@v3
 
-      - name: Locate Project & Regenerate Corrupt Gradle Wrapper
+      # Finn prosjektet, generer wrapper, dummy-filer og debug.keystore automatisk
+      - name: Locate Project & Prepare Build Environment
         run: |
           # Finn mappen der gradlew ligger (eller bruk rotmappen hvis ikke funnet)
           GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
@@ -41,35 +42,24 @@ jobs:
             echo "⚠️ Fant ikke gradlew, antar at prosjektet ligger i rotmappen."
           fi
           
-          # Bruk Ubuntu-serverens innebygde Gradle til å generere en 100% frisk wrapper-jar
-          echo "🔧 Genererer en ny og urørt gradle-wrapper.jar på serveren..."
-          gradle wrapper --distribution-type all
-          
-          # Gjør gradlew kjørbart
-          chmod +x gradlew
-          
-          # Lagre mappen som en miljøvariabel for neste steg
-          echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
-
-          # Finn prosjektet, generer ny wrapper, og opprett manglende .env-filer
-     
-      - name: Locate Project & Prepare Build Environment
-        run: |
-          GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
-          if [ -n "$GRADLEW_PATH" ]; then
-            GRADLEW_DIR=$(dirname "$GRADLEW_PATH")
-            cd "$GRADLEW_DIR"
-          fi
-          
           # 1. Opprett manglende miljøfiler som byggeprogrammet krever
-          echo "📝 Oppretter .env.example og .env for CI-serveren..."
+          echo "📝 Oppretter .env, .env.example og dummy google-services.json for CI-serveren..."
           touch .env.example .env
+          mkdir -p app/src/debug
+          echo '{}' > app/src/debug/google-services.json
           
-          # 2. Generer frisk Gradle-wrapper på serveren
-          echo "🔧 Genererer ny og urørt gradle-wrapper.jar..."
+          # 2. Generer en gyldig debug.keystore på serveren (siden nøkler er blokkert i git)
+          echo "🔑 Genererer midlertidig debug.keystore for bygge-roboten..."
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 1000 -dname "CN=Android Debug,O=Android,C=US"
+          
+          # 3. Bruk Ubuntu-serverens innebygde Gradle til å generere en 100% frisk wrapper-jar
+          echo "🔧 Genererer ny og urørt gradle-wrapper.jar på serveren..."
           gradle wrapper --distribution-type all
+          
+          # 4. Gjør gradlew kjørbart
           chmod +x gradlew
           
+          # Lagre prosjektmappen som en miljøvariabel for neste steg
           echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
 
       # Bygg C++ DSP motor og Android APK fra riktig mappe
