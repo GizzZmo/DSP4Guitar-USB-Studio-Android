@@ -1,81 +1,22 @@
-# Data Analytics Project Template
-A project template to quick start data analytics and machine learning task.
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-# About The Project
-It is convenient to adopt a good project structure having support of git when starting with a project for data analysis and machine learning. This project is made for Visual Studio Code (**vscode**) but can be used in any IDE.
+# Run and deploy your AI Studio app
 
-# Project Highlights
-1. Jupyter Notebook
-2. Pandas
-3. matplotlib
-4. numpy
-5. seaborn
-6. **data** directory git ignored
-7. module finder for code sharing
+This contains everything you need to run your app locally.
 
-# About The Author
-You can connect with me here:
-* [Janishar Ali](https://janisharali.com)
-* [Twitter](https://twitter.com/janisharali)
-* [YouTube Channel](https://www.youtube.com/@unusualcode)
+View your app in AI Studio: https://ai.studio/apps/2ccf28ad-8a78-4b31-8032-5f1df3922082
 
-## Recommended Steps:
+## Run Locally
 
-1. Install Conda - [Instructions Here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
-2. Install vscode (optional) - [Download Here](https://code.visualstudio.com/download)
-3. Clone this repo
-4. `src/example/data/archive.zip` - unzip for testing
-5. Run `src/example/main.ipynb`
-6. Get started with your own project 🥳
-
-## VSCODE template generation
-1. Open `Command Palette`
-2. Select `Tasks: Run Task`
-3. Select `Template: Generate Analysis Module`
-4. `Enter the name` of a new module directory
-5. The template directory is generated in the `src` directory with the given name
-6. Start working on the task
+**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
 
 
-https://user-images.githubusercontent.com/11065002/209532606-c62df522-2136-4837-a736-4568801411a9.mov
-
-## Project Directory Structure
-```
-.
-├── .git
-├── .gitignore
-├── .templates
-├── .vscode
-└── src
-    ├── example
-    │   ├── .gitignore
-    │   ├── __module_finder__.py
-    │   ├── data
-    │   │   ├── Churn_Modelling.csv
-    │   │   └── archive.zip
-    │   └── main.ipynb
-    └── utils
-        ├── __init__.py
-        └── display.py
-```
- 
-### Find this project useful ? :heart:
-* Support it by clicking the :star: button on the upper right of this page. :v:
-
-### License
-```
-   Copyright (C) 2022 JANISHAR ALI ANWAR
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-```
-
+1. Open Android Studio
+2. Select **Open** and choose the directory containing this project
+3. Allow Android Studio to fix any incompatibilities as it imports the project.
+4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
+5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
+6. Run the app on an emulator or physical device
+7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.

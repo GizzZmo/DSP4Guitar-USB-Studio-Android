@@ -1,0 +1,6 @@
+{
+  "name": "DSP4Guitar USB Studio",
+  "description": "Guitar DSP Pedalboard, Amp Simulator, Precision Tuner and USB Audio Interface Processor",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
