@@ -17,6 +17,7 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
+          lfs: true # Henter faktiske binærfiler i tilfelle jar-filen var en LFS-peker
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -28,24 +29,36 @@ jobs:
       - name: Setup Android SDK & NDK Environment
         uses: android-actions/setup-android@v3
 
-      # Automatisk finn gradlew og gjør den eksekverbar
-      - name: Locate and Grant Execute Permission for Gradlew
+      # Finn prosjektet, generer ny wrapper på serveren, og gi kjørerettigheter
+      - name: Locate Project & Regenerate Corrupt Gradle Wrapper
         run: |
+          # Finn mappen der gradlew ligger (eller bruk rotmappen hvis ikke funnet)
           GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
-          if [ -z "$GRADLEW_PATH" ]; then
-            echo "❌ Feil: Fant ikke gradlew i repoet! Sjekk at du har committet gradlew og gradle/wrapper/-mappen."
-            exit 1
+          if [ -n "$GRADLEW_PATH" ]; then
+            GRADLEW_DIR=$(dirname "$GRADLEW_PATH")
+            echo "✅ Fant prosjekt i mappen: $GRADLEW_DIR"
+            cd "$GRADLEW_DIR"
+          else
+            echo "⚠️ Fant ikke gradlew, antar at prosjektet ligger i rotmappen."
           fi
-          echo "✅ Fant gradlew i: $GRADLEW_PATH"
-          chmod +x "$GRADLEW_PATH"
-          echo "GRADLEW_DIR=$(dirname "$GRADLEW_PATH")" >> $GITHUB_ENV
+          
+          # Bruk Ubuntu-serverens innebygde Gradle til å generere en 100% frisk wrapper-jar
+          echo "🔧 Genererer en ny og urørt gradle-wrapper.jar på serveren..."
+          gradle wrapper --distribution-type all
+          
+          # Gjør gradlew kjørbart
+          chmod +x gradlew
+          
+          # Lagre mappen som en miljøvariabel for neste steg
+          echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
 
-      # Bygg APK fra mappen der gradlew ble funnet
+      # Bygg C++ DSP motor og Android APK fra riktig mappe
       - name: Build Debug APK (with C++ CMake/NDK compilation)
         run: |
-          cd ${{ env.GRADLEW_DIR }}
+          cd ${{ env.PROJ_DIR }}
           ./gradlew assembleDebug --stacktrace
 
+      # Last opp den ferdige APK-filen under Actions-fanen på GitHub
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
