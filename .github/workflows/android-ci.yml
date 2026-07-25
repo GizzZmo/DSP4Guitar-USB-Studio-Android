@@ -17,7 +17,7 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
-          lfs: true # Henter faktiske binærfiler i tilfelle jar-filen var en LFS-peker
+          lfs: true
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -29,9 +29,8 @@ jobs:
       - name: Setup Android SDK & NDK Environment
         uses: android-actions/setup-android@v3
 
-      - name: Locate Project & Regenerate Corrupt Gradle Wrapper
+      - name: Locate Project & Prepare Build Environment
         run: |
-          # Finn mappen der gradlew ligger (eller bruk rotmappen hvis ikke funnet)
           GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
           if [ -n "$GRADLEW_PATH" ]; then
             GRADLEW_DIR=$(dirname "$GRADLEW_PATH")
@@ -41,44 +40,62 @@ jobs:
             echo "⚠️ Fant ikke gradlew, antar at prosjektet ligger i rotmappen."
           fi
           
-          # Bruk Ubuntu-serverens innebygde Gradle til å generere en 100% frisk wrapper-jar
-          echo "🔧 Genererer en ny og urørt gradle-wrapper.jar på serveren..."
-          gradle wrapper --distribution-type all
-          
-          # Gjør gradlew kjørbart
-          chmod +x gradlew
-          
-          # Lagre mappen som en miljøvariabel for neste steg
-          echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
-
-          # Finn prosjektet, generer ny wrapper, og opprett manglende .env-filer
-     
-      - name: Locate Project & Prepare Build Environment
-        run: |
-          GRADLEW_PATH=$(find . -name "gradlew" | head -n 1)
-          if [ -n "$GRADLEW_PATH" ]; then
-            GRADLEW_DIR=$(dirname "$GRADLEW_PATH")
-            cd "$GRADLEW_DIR"
-          fi
-          
-          # 1. Opprett manglende miljøfiler som byggeprogrammet krever
-          echo "📝 Oppretter .env.example og .env for CI-serveren..."
+          # 1. Opprett miljøfiler og gyldig stub for Google Services
+          echo "📝 Oppretter .env og dummy google-services.json for CI..."
           touch .env.example .env
+          mkdir -p app/src/debug app
           
-          # 2. Generer frisk Gradle-wrapper på serveren
+          cat << 'EOF' > app/src/debug/google-services.json
+          {
+            "project_info": {
+              "project_number": "1234567890",
+              "project_id": "dsp4guitar-dummy",
+              "storage_bucket": "dsp4guitar-dummy.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1234567890:android:1234567890abcdef",
+                  "android_client_info": {
+                    "package_name": "com.cybergroup.dsp4guitar"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyDummyKeyForCIEnvironmentOnly00"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+          
+          # Kopier også til app/ for å dekke alle oppslagsbaner
+          cp app/src/debug/google-services.json app/google-services.json
+          
+          # 2. Generer debug.keystore
+          echo "🔑 Genererer midlertidig debug.keystore..."
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 1000 -dname "CN=Android Debug,O=Android,C=US"
+          
+          # 3. Generer frisk Gradle-wrapper
           echo "🔧 Genererer ny og urørt gradle-wrapper.jar..."
           gradle wrapper --distribution-type all
           chmod +x gradlew
           
           echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
 
-      # Bygg C++ DSP motor og Android APK fra riktig mappe
       - name: Build Debug APK (with C++ CMake/NDK compilation)
         run: |
           cd ${{ env.PROJ_DIR }}
           ./gradlew assembleDebug --stacktrace
 
-      # Last opp den ferdige APK-filen under Actions-fanen på GitHub
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
