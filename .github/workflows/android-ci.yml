@@ -44,8 +44,8 @@ jobs:
           echo "📝 Oppretter .env og .env.example..."
           touch .env.example .env
           
-          # 2. Lag en fullstendig dummy google-services.json som tilfredsstiller Google Services-pluginen
-          echo "📝 Genererer gyldig dummy google-services.json for CI..."
+          # 2. Generer dummy google-services.json med RIKTIG package_name
+          echo "📝 Genererer gyldig dummy google-services.json med kodelinjens pakkenavn..."
           mkdir -p app/src/debug app/src/main app
           
           cat << 'EOF' > app/src/debug/google-services.json
@@ -60,7 +60,7 @@ jobs:
                 "client_info": {
                   "mobilesdk_app_id": "1:123456789012:android:1234567890abcdef123456",
                   "android_client_info": {
-                    "package_name": "com.cybergroup.dsp4guitar"
+                    "package_name": "com.aistudio.dsp4guitar.kxmzdq"
                   }
                 },
                 "oauth_client": [],
@@ -80,7 +80,7 @@ jobs:
           }
           EOF
           
-          # Kopier filen til de andre søkeveiene for sikkerhets skyld
+          # Kopier til alle søkebaner for sikkerhets skyld
           cp app/src/debug/google-services.json app/google-services.json
           cp app/src/debug/google-services.json app/src/main/google-services.json
           
