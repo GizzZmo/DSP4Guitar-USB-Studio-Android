@@ -66,3 +66,52 @@ The application relies on a split-architecture model separating the graphical us
    ```bash
    git clone --recursive [https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android.git](https://github.com/GizzZmo/DSP4Guitar-USB-Studio-Android.git)
    cd DSP4Guitar-USB-Studio-Android
+
+           
+(If you already cloned without --recursive, run git submodule update --init --recursive to fetch JUCE and Oboe).
+Configure NDK Path:
+Create or edit the local.properties file in the root directory and point it to your Android SDK/NDK installation:
+
+Properties
+sdk.dir=/Users/<username>/Library/Android/sdk
+ndk.dir=/Users/<username>/Library/Android/sdk/ndk/25.2.9519653
+Build via CMake / Gradle:
+Open the project in Android Studio, allow Gradle to sync, and build the APK:
+
+Debug Build: Build -> Build Bundle(s) / APK(s) -> Build APK(s)
+
+Command Line: ./gradlew assembleDebug
+
+Install on Device:
+Enable USB Debugging on your Android device and deploy:
+
+Bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+🎚️ Usage & Gain Staging
+Connect Hardware: Plug your USB audio interface into your Android device before launching the app. When prompted by Android, grant USB Host / Audio Permission to DSP4Guitar Studio.
+
+Set Buffer Size: Tap the ⚙️ Engine Settings icon in the top right. For modern devices (Snapdragon 8 Gen 1+ or Pixel 7+), set the buffer to 64 or 128 samples at 48 kHz. If you experience audio crackling (xruns), bump the buffer to 256 samples.
+
+Gain Staging: Adjust your physical guitar interface preamp gain until your loudest strum peaks in the yellow zone of the app's Input VU Meter. Avoid hitting solid red to prevent undesirable digital clipping before the Bitcrusher and Fuzz stages.
+
+🤝 Contributing
+Contributions, bug reports, and performance optimizations are highly welcome! If you are interested in expanding the DSP library or optimizing mobile latency:
+
+Fork the Project.
+
+Create your Feature Branch (git checkout -b feature/AmazingDSPBlock).
+
+Ensure your C++ code adheres to real-time audio safety rules (no memory allocation malloc/new, no file I/O, and no mutex locks inside the audio callback).
+
+Commit your Changes (git commit -m 'Add: New Overdrive algorithm with 2x oversampling').
+
+Push to the Branch (git push origin feature/AmazingDSPBlock).
+
+Open a Pull Request.
+
+📄 License & Acknowledgments
+License: Distributed under the MIT License. See LICENSE for more information.
+
+Engine Core: Based on the original DSP4Guitar C++ audio processing architecture.
+
+Frameworks: Built with JUCE and Google Oboe.
