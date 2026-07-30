@@ -91,8 +91,11 @@ jobs:
           # 4. Generer frisk Gradle-wrapper
           echo "🔧 Genererer ny og urørt gradle-wrapper.jar på serveren..."
           gradle wrapper --distribution-type all
+          
+          # 4. Gjør gradlew kjørbart
           chmod +x gradlew
           
+          # Lagre prosjektmappen som en miljøvariabel for neste steg
           echo "PROJ_DIR=$(pwd)" >> $GITHUB_ENV
 
       - name: Build Debug APK (with C++ CMake/NDK compilation)
