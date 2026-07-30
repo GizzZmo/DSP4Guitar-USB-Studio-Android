@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+/build
+/.cxx
+/.externalNativeBuild
+*.keystore
+*.jks
+.env
+
 # C extensions
 *.so
 

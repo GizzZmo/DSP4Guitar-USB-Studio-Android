@@ -113,7 +113,17 @@ class UsbAudioEngine(private val context: Context) {
 
     fun startAudioProcessing() {
         if (isProcessing) return
+        if (androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.RECORD_AUDIO
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            _configState.value = _configState.value.copy(isEngineRunning = false)
+            return
+        }
+
         isProcessing = true
+        _configState.value = _configState.value.copy(isEngineRunning = true)
 
         detectUsbInterfaces()
 
@@ -129,6 +139,16 @@ class UsbAudioEngine(private val context: Context) {
     }
 
     private fun runProcessingLoop() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.RECORD_AUDIO
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            isProcessing = false
+            _configState.value = _configState.value.copy(isEngineRunning = false)
+            return
+        }
+
         val sampleRate = _configState.value.sampleRate
         val bufferSizeSamples = _configState.value.bufferSize
 
@@ -142,14 +162,47 @@ class UsbAudioEngine(private val context: Context) {
         var audioRecord: AudioRecord? = null
         var audioTrack: AudioTrack? = null
 
+        val audioContext = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            context.createAttributionContext("default")
+        } else {
+            context
+        }
+
         try {
-            audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                sampleRate,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                recBufSize
-            )
+            audioRecord = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                AudioRecord.Builder()
+                    .setContext(audioContext)
+                    .setAudioSource(MediaRecorder.AudioSource.MIC)
+                    .setAudioFormat(
+                        AudioFormat.Builder()
+                            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                            .setSampleRate(sampleRate)
+                            .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                            .build()
+                    )
+                    .setBufferSizeInBytes(recBufSize)
+                    .build()
+            } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                AudioRecord.Builder()
+                    .setAudioSource(MediaRecorder.AudioSource.MIC)
+                    .setAudioFormat(
+                        AudioFormat.Builder()
+                            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                            .setSampleRate(sampleRate)
+                            .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                            .build()
+                    )
+                    .setBufferSizeInBytes(recBufSize)
+                    .build()
+            } else {
+                AudioRecord(
+                    MediaRecorder.AudioSource.MIC,
+                    sampleRate,
+                    AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    recBufSize
+                )
+            }
 
             val minTrackBuf = AudioTrack.getMinBufferSize(
                 sampleRate,
@@ -158,11 +211,15 @@ class UsbAudioEngine(private val context: Context) {
             )
 
             audioTrack = AudioTrack.Builder()
+                .apply {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        setContext(audioContext)
+                    }
+                }
                 .setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setFlags(AudioAttributes.FLAG_LOW_LATENCY)
                         .build()
                 )
                 .setAudioFormat(
@@ -173,7 +230,11 @@ class UsbAudioEngine(private val context: Context) {
                         .build()
                 )
                 .setBufferSizeInBytes(max(minTrackBuf, bufferSizeSamples * 2))
-                .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+                .apply {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+                    }
+                }
                 .build()
 
             if (audioRecord.state != AudioRecord.STATE_INITIALIZED ||

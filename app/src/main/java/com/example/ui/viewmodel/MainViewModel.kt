@@ -52,7 +52,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // Sync active effects to engine
         audioEngine.updateActiveEffects(_effectsChain.value)
-        audioEngine.startAudioProcessing()
     }
 
     fun setSelectedTab(tabIndex: Int) {
