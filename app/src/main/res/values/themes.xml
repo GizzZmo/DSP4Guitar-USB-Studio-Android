@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.MyApplication" parent="android:Theme.DeviceDefault.NoActionBar" />
+    <!-- Base application theme. Compose handles the actual theming via MaterialTheme;
+         this XML theme only governs the window chrome (status bar, navigation bar). -->
+    <style name="Theme.DSP4Guitar" parent="android:Theme.Material.NoTitleBar">
+        <item name="android:windowBackground">#0A0A0A</item>
+        <item name="android:statusBarColor">#0A0A0A</item>
+        <item name="android:navigationBarColor">#0A0A0A</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

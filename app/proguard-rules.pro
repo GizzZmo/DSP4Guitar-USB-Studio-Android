@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepattributes *Annotation*
+-keepclassmembers class com.dsp4guitar.studio.audio.AudioEngineJni {
+    native <methods>;
+}
+-keep class com.dsp4guitar.studio.audio.** { *; }
