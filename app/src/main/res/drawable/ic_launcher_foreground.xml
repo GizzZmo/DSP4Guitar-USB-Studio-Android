@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Guitar Pick Silhouette in bright Amber/Gold -->
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M54,26 C68,26 80,32 78,48 C76,64 58,82 54,86 C50,82 32,64 30,48 C28,32 40,26 54,26 Z" />
+    <!-- Electric Guitar Soundwave overlay in Dark Charcoal -->
+    <path
+        android:fillColor="#12151C"
+        android:pathData="M38,48 L42,48 L44,40 L47,56 L50,36 L54,60 L58,38 L61,54 L64,44 L66,50 L70,50 L70,46 L68,46 L65,40 L63,52 L60,32 L56,54 L52,30 L48,50 L45,36 L43,46 L38,46 Z" />
+</vector>

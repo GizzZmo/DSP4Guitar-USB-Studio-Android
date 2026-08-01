@@ -7,6 +7,16 @@
 # Files for the ART/Dalvik VM
 *.dex
 
+/build
+/.cxx
+/.externalNativeBuild
+*.keystore
+*.jks
+.env
+
+# C extensions
+*.so
+
 # Java class files
 *.class
 
@@ -85,3 +95,25 @@ app/libs/oboe/
 
 # macOS
 .DS_Store
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# data directories
+**/data/*
+!**/data/.gitkeep

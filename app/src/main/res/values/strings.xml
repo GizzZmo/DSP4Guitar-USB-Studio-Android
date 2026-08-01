@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DSP4Guitar Studio</string>
+    <string name="app_name">DSP4Guitar USB Studio</string>
     <string name="label_chain">Chain</string>
     <string name="label_settings">Settings</string>
     <string name="label_effect_on">ON</string>
